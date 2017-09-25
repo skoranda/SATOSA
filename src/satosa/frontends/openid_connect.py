@@ -59,7 +59,6 @@ class OpenIDConnectFrontend(FrontendModule):
             "issuer": self.base_url,
             "authorization_endpoint": "{}/{}".format(endpoint_baseurl, AuthorizationEndpoint.url),
             "jwks_uri": "{}/jwks".format(endpoint_baseurl),
-            "token_endpoint": "{}/jwks".format(endpoint_baseurl, TokenEndpoint.url),
             "response_types_supported": response_types_supported,
             "id_token_signing_alg_values_supported": [self.signing_key.alg],
             "response_modes_supported": ["fragment", "query"],
@@ -73,6 +72,9 @@ class OpenIDConnectFrontend(FrontendModule):
             "request_uri_parameter_supported": False,
             "scopes_supported": scopes_supported
         }
+
+        if 'code' in response_types_supported:
+            capabilities["token_endpoint"] = "{}/jwks".format(endpoint_baseurl, TokenEndpoint.url)
 
         if self.config["provider"].get("client_registration_supported", False):
             capabilities["registration_endpoint"] = "{}/{}".format(endpoint_baseurl, RegistrationEndpoint.url)
