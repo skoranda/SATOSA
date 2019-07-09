@@ -1141,6 +1141,7 @@ class SAMLUnsolicitedFrontend(SAMLFrontend):
     KEY_QUERY_RELAY = "target"
     KEY_QUERY_DISCO_URL = "discoveryURL"
     KEY_QUERY_DISCO_POLICY = "discoveryPolicy"
+    KEY_QUERY_FORCE_AUTHN = "forceAuthn"
     KEY_SAML_DISCOVERY_SERVICE_URL = SAMLBackend.KEY_SAML_DISCOVERY_SERVICE_URL
     KEY_SAML_DISCOVERY_SERVICE_POLICY = (
             SAMLBackend.KEY_SAML_DISCOVERY_SERVICE_POLICY
@@ -1191,6 +1192,7 @@ class SAMLUnsolicitedFrontend(SAMLFrontend):
         target_sp_relay_state_url = request.get(self.KEY_QUERY_RELAY, None)
         requested_disco_url = request.get(self.KEY_QUERY_DISCO_URL, None)
         requested_disco_policy = request.get(self.KEY_QUERY_DISCO_POLICY, None)
+        force_authn = request.get(self.KEY_QUERY_FORCE_AUTHN, None)
 
         logger.debug("Unsolicited target authenticating IdP is {}".format(
                      target_idp_entity_id))
@@ -1202,6 +1204,7 @@ class SAMLUnsolicitedFrontend(SAMLFrontend):
                      requested_disco_url))
         logger.debug("Unsolicted discovery policy is {}".format(
                      requested_disco_policy))
+        logger.debug("Unsolicited forceAuthn is {}".format(force_authn))
 
         # We only proceed with known federated SPs.
         try:
@@ -1263,6 +1266,8 @@ class SAMLUnsolicitedFrontend(SAMLFrontend):
                     }
                 }
             }
+        if (force_authn == "1" or force_authn=="true"):
+            sp_config_dict["service"]["sp"]["force_authn"] = "true"
         sp_config = SPConfig().load(sp_config_dict, False)
 
         # Create a temporary SP object and use it to create a authn request
